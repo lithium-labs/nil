@@ -1,0 +1,37 @@
+name: Release
+on:
+  push:
+    tags:
+    - 'v*'
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  release:
+    name: Release for ${{ matrix.target }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            rules_dir: linux
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            rules_dir: windows
+          - os: macos-latest
+            target: aarch64-apple-darwin
+            rules_dir: macos
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Rust Release binary
+        uses: rust-build/rust-build.action@v1.4.5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          RUSTTARGET: ${{ matrix.target }}
+          EXTRA_FILES: "README.md templates/${{ matrix.rules_dir }}/rules.txt"
+          MINIFY: "true"
