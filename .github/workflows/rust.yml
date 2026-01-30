@@ -45,20 +45,29 @@ jobs:
       - name: Package Assets
         shell: bash
         run: |
-          mkdir -p dist
-          # Standardize binary names for the zip
+          STAGING="nil-${{ matrix.target }}"
+          mkdir -p "$STAGING"
+
           if [ -f "target/${{ matrix.target }}/release/nil.exe" ]; then
-            cp "target/${{ matrix.target }}/release/nil.exe" "dist/nil.exe"
+            cp "target/${{ matrix.target }}/release/nil.exe" "$STAGING/"
           else
-            cp "target/${{ matrix.target }}/release/nil" "dist/nil"
+            cp "target/${{ matrix.target }}/release/nil" "$STAGING/"
           fi
-          cp README.md dist/
-          cp templates/${{ matrix.rules_dir }}/rules.txt dist/
+
+          cp README.md "$STAGING/"
+          cp templates/${{ matrix.rules_dir }}/rules.txt "$STAGING/"
+
+          mkdir -p dist
+          if [ "${{ runner.os }}" == "Windows" ]; then
+            7z a "dist/nil-${{ matrix.target }}.zip" "./$STAGING/*"
+          else
+            zip -r "dist/nil-${{ matrix.target }}.zip" "$STAGING"
+          fi
 
       - name: Upload Release
         uses: softprops/action-gh-release@v2
-        if: startsWith(github.ref, 'refs/tags/')
+        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
         with:
-          files: dist/*
+          files: dist/*.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
