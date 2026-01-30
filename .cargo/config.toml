@@ -1,0 +1,9 @@
+[unstable]
+build-std = ["std", "compiler_builtins"]
+build-std-features = ["compiler-builtins-mem"]
+
+[build]
+rustflags = [
+    "-C", "link-arg=-Wl,--entry=main",
+    "-C", "link-arg=-s",
+]

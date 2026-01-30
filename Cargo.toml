@@ -1,0 +1,18 @@
+cargo-features = ["panic-immediate-abort"]
+
+[package]
+name = "nil"
+version = "1.0.0"
+edition = "2021"
+description = "A blazingly fast cli tool to clean up your caches!"
+repository = "https://github.com/lithium-labs/nil"
+license = "GPL-3.0-only"
+keywords = ["cache", "cleaner", "tool", "nil"]
+
+[profile.release]
+lto = "fat"
+codegen-units = 1
+panic = "immediate-abort"
+opt-level = "z"
+strip = "symbols"
+incremental = false
