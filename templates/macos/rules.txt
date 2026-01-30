@@ -1,0 +1,56 @@
+uv
+1uv
+1uv;cache clean
+~/Library/Caches/uv
+pip
+1pip
+1pip;cache purge
+~/Library/Caches/pip
+npm
+1npm
+1npm;cache clean --force
+~/.npm/_cacache
+go
+3~/Library/Caches/go-build
+2~/Library/Caches/go-build
+~/Library/Caches/go-build
+pnpm
+2PNPM_HOME
+1pnpm;store prune
+~/Library/pnpm/store
+gradle
+3~/.gradle
+2~/.gradle/caches
+~/.gradle/caches
+maven
+3~/.m2/repository
+2~/.m2/repository
+~/.m2/repository
+cargo
+3~/.cargo/registry
+1cargo;clean
+~/.cargo/registry
+vscode
+3~/Library/Application Support/Code
+2~/Library/Application Support/Code/Cache
+~/Library/Application Support/Code/Cache
+yarn
+1yarn
+1yarn;cache clean
+~/Library/Caches/Yarn
+nuget
+3~/.nuget/packages
+2~/.nuget/packages
+~/.nuget/packages
+huggingface
+3~/.cache/huggingface
+2~/.cache/huggingface
+~/.cache/huggingface
+puppeteer
+3~/.cache/puppeteer
+2~/.cache/puppeteer
+~/.cache/puppeteer
+scapy
+3~/.cache/scapy
+2~/.cache/scapy
+~/.cache/scapy

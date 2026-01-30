@@ -1,0 +1,72 @@
+uv
+1uv
+1uv;cache clean
+~/AppData/Local/uv
+pip
+1pip
+1pip;cache purge
+~/AppData/Local/pip/Cache
+npm
+1npm
+1npm.cmd;cache clean --force
+~/AppData/Local/npm-cache
+go
+3~/AppData/Local/go-build
+2~/AppData/Local/go-build
+~/AppData/Local/go-build
+pnpm
+2PNPM_HOME
+2~/AppData/Local/pnpm-cache
+~/AppData/Local/pnpm-cache
+gradle
+3~/.gradle
+2~/.gradle/caches
+~/.gradle/caches
+maven
+3~/.m2/repository
+2~/.m2/repository
+~/.m2/repository
+cargo
+3~/.cargo/registry
+2~/.cargo/registry
+~/.cargo/registry
+chocolatey
+1choco
+1choco;cache remove
+~/.chocolatey/http-cache
+scoop
+1scoop
+1scoop.cmd;cache rm *
+~/scoop/cache
+vscode
+3~/AppData/Roaming/Code
+2~/AppData/Roaming/Code/Cache
+~/AppData/Roaming/Code/Cache
+yarn
+1yarn
+1yarn.cmd;cache clean
+~/AppData/Local/Yarn/Cache/v6
+nuget
+3~/.nuget/packages
+2~/.nuget/packages
+~/.nuget/packages
+nuget-v3
+3~/AppData/Local/NuGet/v3-cache
+2~/AppData/Local/NuGet/v3-cache
+~/AppData/Local/NuGet/v3-cache
+huggingface
+3~/.cache/huggingface
+2~/.cache/huggingface
+~/.cache/huggingface
+puppeteer
+3~/.cache/puppeteer
+2~/.cache/puppeteer
+~/.cache/puppeteer
+scapy
+3~/.cache/scapy
+2~/.cache/scapy
+~/.cache/scapy
+direct3d-shader
+3~/AppData/Local/D3DSCache
+2~/AppData/Local/D3DSCache
+~/AppData/Local/D3DSCache
