@@ -1,11 +1,11 @@
-use std::fs;
-use std::path::PathBuf;
 use crate::minimessage_const::ConstStr;
 use std::env;
+use std::fs;
+use std::path::PathBuf;
 
 pub fn folder_size(path: &str) -> u64 {
     let mut size = 0;
-    
+
     if let Ok(entries) = fs::read_dir(path) {
         for entry in entries.flatten() {
             if let Ok(metadata) = entry.metadata() {
@@ -35,16 +35,18 @@ pub fn human_size(bytes: u64) -> ConstStr<16> {
     }
 
     let mut line = ConstStr::<16>::new();
-    
+
     let fraction = (remainder * 100) / 1024;
 
     line.push_u64(value);
     if unit_idx > 0 {
         line.push_u8(b'.');
-        if fraction < 10 { line.push_u8(b'0'); }
+        if fraction < 10 {
+            line.push_u8(b'0');
+        }
         line.push_u64(fraction);
     }
-    
+
     line.push_u8(b' ');
     line.push_str(UNITS[unit_idx]);
     line
@@ -109,13 +111,14 @@ pub fn find_executable(name: &str) -> Option<ConstStr<260>> {
     if let Ok(path_env) = env::var("PATH") {
         for dir in path_env.split(if cfg!(windows) { ';' } else { ':' }) {
             let mut exe_path = PathBuf::from(dir);
-            
+
             if cfg!(windows) {
-                let pathext = std::env::var("PATHEXT").unwrap_or_else(|_| ".EXE;.CMD;.BAT".to_string());
-                
+                let pathext =
+                    std::env::var("PATHEXT").unwrap_or_else(|_| ".EXE;.CMD;.BAT".to_string());
+
                 for ext in pathext.split(';') {
                     let ext = ext.strip_prefix('.').unwrap_or(ext);
-                    
+
                     exe_path.push(name);
                     exe_path.set_extension(ext);
 
@@ -127,7 +130,7 @@ pub fn find_executable(name: &str) -> Option<ConstStr<260>> {
                         }
                     }
 
-                    exe_path.pop(); 
+                    exe_path.pop();
                 }
             } else {
                 exe_path.push(name);

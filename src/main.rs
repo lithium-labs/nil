@@ -4,19 +4,30 @@
 use std::{env, process::exit};
 
 use crate::{
-    r#abstract::Timer, cli::{Commands, find_suggestion}, config::MAX_RULES, files::{clear_dir, expand_path, folder_size, human_size}, minimessage_const::{ConstStr, serialize}, rules::{CacheRule, CleanMethod, DetectMethod, is_rule_active, load_rules}, ui::{print_styled, println}
+    cli::{find_suggestion, Commands},
+    config::MAX_RULES,
+    files::{clear_dir, expand_path, folder_size, human_size},
+    minimessage_const::{serialize, ConstStr},
+    r#abstract::Timer,
+    rules::{is_rule_active, load_rules, CacheRule, CleanMethod, DetectMethod},
+    ui::{print_styled, println},
 };
 
+mod r#abstract;
 mod cli;
+mod config;
 mod files;
 mod minimessage_const;
-mod r#abstract;
 mod rules;
 mod ui;
-mod config;
 
-const HELP_MESSAGE: &str = serialize::<1024>(concat!(r#"<#55AAFF>nil</#55AAFF> <white>v"#, env!("CARGO_PKG_VERSION"), r#"</white>
-<#A5FAFF>"#, env!("CARGO_PKG_DESCRIPTION"), r#"</#A5FAFF>
+const HELP_MESSAGE: &str = serialize::<1024>(concat!(
+    r#"<#55AAFF>nil</#55AAFF> <white>v"#,
+    env!("CARGO_PKG_VERSION"),
+    r#"</white>
+<#A5FAFF>"#,
+    env!("CARGO_PKG_DESCRIPTION"),
+    r#"</#A5FAFF>
 
 <white><b><u>Usage:</u></b> <#55AAFF><b>nil</b> \<COMMAND> [OPTION]</#55AAFF>
 
@@ -34,7 +45,9 @@ const HELP_MESSAGE: &str = serialize::<1024>(concat!(r#"<#55AAFF>nil</#55AAFF> <
   <b>clean:</b>
     <b>--unsafe, -u</b>  Cleans the cache directory instead of using the preferred
                   method.
-"#)).as_str();
+"#
+))
+.as_str();
 
 fn print_help() {
     println(HELP_MESSAGE);
@@ -43,11 +56,7 @@ fn print_help() {
 fn main() {
     let args: Vec<String> = env::args().collect();
 
-    let cmd = if args.len() > 1 {
-        &args[1]
-    } else {
-        "help"
-    };
+    let cmd = if args.len() > 1 { &args[1] } else { "help" };
 
     let is_unsafe = args.contains(&"--unsafe".to_string()) || args.contains(&"-u".to_string());
 
@@ -98,19 +107,21 @@ fn main() {
                 if is_rule_active(r) {
                     let mut s = ConstStr::<64>::from("  <gray>- <yellow>");
                     s.push_str(r.name.as_str());
-                    
-                    print_styled(s.as_str()); 
+
+                    print_styled(s.as_str());
                 }
             }
         }
         Commands::Scan => {
             let mut total: u64 = 0;
-            
+
             print_styled("<white>Tool Sizes:\n");
 
             for i in 0..rule_count {
                 let t = &rules[i];
-                if !is_rule_active(t) { continue; }
+                if !is_rule_active(t) {
+                    continue;
+                }
 
                 let size = match &t.size_dir {
                     Some(dir) => {
@@ -129,11 +140,11 @@ fn main() {
                 } else {
                     line.push_str("<#55AAFF>");
                 }
-                
+
                 line.push_str(t.name.as_str());
                 line.push_str(": <white>");
                 line.push_str(human_size(size).as_str());
-                
+
                 print_styled(line.as_str());
             }
 
@@ -194,7 +205,7 @@ fn main() {
                     CleanMethod::CleanPath(path) => {
                         let dir = expand_path(*path);
 
-                        let mut escaped_dir = ConstStr::<512>::new(); 
+                        let mut escaped_dir = ConstStr::<512>::new();
                         for b in dir.as_str().bytes() {
                             if b == b'\\' {
                                 escaped_dir.push_str("\\\\");

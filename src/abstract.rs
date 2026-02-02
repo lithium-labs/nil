@@ -18,9 +18,7 @@ impl Timer {
 }
 
 pub fn run_command(exe: &str, args: &str) -> Result<(), u32> {
-    let output = Command::new(exe)
-        .args(args.split_whitespace())
-        .output();
+    let output = Command::new(exe).args(args.split_whitespace()).output();
 
     match output {
         Ok(result) => {

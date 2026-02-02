@@ -58,10 +58,7 @@ impl<const N: usize> ConstStr<N> {
 
     pub const fn as_str(&self) -> &str {
         unsafe {
-            str::from_utf8_unchecked(core::slice::from_raw_parts(
-                self.buffer.as_ptr(),
-                self.len,
-            ))
+            str::from_utf8_unchecked(core::slice::from_raw_parts(self.buffer.as_ptr(), self.len))
         }
     }
     pub const fn push_str(&mut self, s: &str) {
@@ -92,7 +89,7 @@ impl<const N: usize> ConstStr<N> {
             self.len += 1;
         }
     }
-    
+
     #[inline(always)]
     pub fn clear(&mut self) {
         self.len = 0;
@@ -240,12 +237,7 @@ const fn substr(s: &str, start: usize, end: usize) -> &str {
     if start >= b.len() || end > b.len() || start > end {
         return "";
     }
-    unsafe {
-        str::from_utf8_unchecked(slice::from_raw_parts(
-            b.as_ptr().add(start),
-            end - start,
-        ))
-    }
+    unsafe { str::from_utf8_unchecked(slice::from_raw_parts(b.as_ptr().add(start), end - start)) }
 }
 
 const fn strip_prefix<'a>(s: &'a str, prefix: &str) -> Option<&'a str> {
@@ -429,7 +421,7 @@ pub const fn serialize<const CAP: usize>(input: &str) -> ConstStr<CAP> {
                 idx += 1;
                 // Render char
                 let c = bytes[idx];
-                
+
                 // --- RENDER LOGIC START ---
                 let style = stack[sp];
                 let mut fg = None;
@@ -461,14 +453,28 @@ pub const fn serialize<const CAP: usize>(input: &str) -> ConstStr<CAP> {
                 }
 
                 let mut reset = false;
-                if current_bold && style.bold != Some(true) { reset = true; }
-                if current_italic && style.italic != Some(true) { reset = true; }
-                if current_underlined && style.underlined != Some(true) { reset = true; }
-                if current_strikethrough && style.strikethrough != Some(true) { reset = true; }
-                if current_obfuscated && style.obfuscated != Some(true) { reset = true; }
-                if current_color.is_some() && fg.is_none() { reset = true; }
+                if current_bold && style.bold != Some(true) {
+                    reset = true;
+                }
+                if current_italic && style.italic != Some(true) {
+                    reset = true;
+                }
+                if current_underlined && style.underlined != Some(true) {
+                    reset = true;
+                }
+                if current_strikethrough && style.strikethrough != Some(true) {
+                    reset = true;
+                }
+                if current_obfuscated && style.obfuscated != Some(true) {
+                    reset = true;
+                }
+                if current_color.is_some() && fg.is_none() {
+                    reset = true;
+                }
                 if current_ansi.is_some() {
-                    if let Fill::None = style.fill { reset = true; }
+                    if let Fill::None = style.fill {
+                        reset = true;
+                    }
                 }
 
                 if reset {
@@ -589,7 +595,9 @@ pub const fn serialize<const CAP: usize>(input: &str) -> ConstStr<CAP> {
                                 grad_char_count = 0;
                                 let remaining = substr(input, end + 1, input.len());
                                 grad_total_len = count_text_content(remaining) as i32;
-                                if grad_total_len == 0 { grad_total_len = 1; }
+                                if grad_total_len == 0 {
+                                    grad_total_len = 1;
+                                }
                             }
                         } else if eq_ignore_case(name, "gradient") {
                             let mut c1 = Color::new(255, 255, 255);
@@ -611,11 +619,18 @@ pub const fn serialize<const CAP: usize>(input: &str) -> ConstStr<CAP> {
                                 if found_colon {
                                     let s1 = substr(args_str, 0, colon_idx);
                                     let s2 = substr(args_str, colon_idx + 1, b_args.len());
-                                    if let Some(c) = resolve_color(s1) { c1 = c; }
-                                    if let Some(c) = resolve_color(s2) { c2 = c; }
+                                    if let Some(c) = resolve_color(s1) {
+                                        c1 = c;
+                                    }
+                                    if let Some(c) = resolve_color(s2) {
+                                        c2 = c;
+                                    }
                                 } else {
-                                     // Single color fallback
-                                     if let Some(c) = resolve_color(args_str) { c1 = c; c2 = c; }
+                                    // Single color fallback
+                                    if let Some(c) = resolve_color(args_str) {
+                                        c1 = c;
+                                        c2 = c;
+                                    }
                                 }
                             }
 
@@ -631,7 +646,9 @@ pub const fn serialize<const CAP: usize>(input: &str) -> ConstStr<CAP> {
                                 grad_char_count = 0;
                                 let remaining = substr(input, end + 1, input.len());
                                 grad_total_len = count_text_content(remaining) as i32;
-                                if grad_total_len == 0 { grad_total_len = 1; }
+                                if grad_total_len == 0 {
+                                    grad_total_len = 1;
+                                }
                             }
                         } else if let Some(c) = resolve_color(name) {
                             new_style.fill = Fill::Solid(c);
@@ -679,10 +696,18 @@ pub const fn serialize<const CAP: usize>(input: &str) -> ConstStr<CAP> {
             }
 
             let mut reset = false;
-            if current_bold && style.bold != Some(true) { reset = true; }
-            if current_italic && style.italic != Some(true) { reset = true; }
-            if current_underlined && style.underlined != Some(true) { reset = true; }
-            if current_color.is_some() && fg.is_none() { reset = true; }
+            if current_bold && style.bold != Some(true) {
+                reset = true;
+            }
+            if current_italic && style.italic != Some(true) {
+                reset = true;
+            }
+            if current_underlined && style.underlined != Some(true) {
+                reset = true;
+            }
+            if current_color.is_some() && fg.is_none() {
+                reset = true;
+            }
 
             if reset {
                 out.push_str("\x1b[0m");

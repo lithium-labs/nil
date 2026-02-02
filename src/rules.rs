@@ -1,7 +1,12 @@
+use crate::{
+    config::MAX_RULES,
+    files::{expand_path, find_executable},
+    minimessage_const::ConstStr,
+    ui::print_styled,
+};
+use std::env;
 use std::fs;
 use std::path::PathBuf;
-use std::env;
-use crate::{config::MAX_RULES, files::{expand_path, find_executable}, minimessage_const::ConstStr, ui::print_styled};
 
 #[derive(Clone, PartialEq, Eq, Hash)]
 pub enum DetectMethod {
@@ -21,12 +26,12 @@ pub struct CacheRule {
     pub name: ConstStr<32>,
     pub detect: DetectMethod,
     pub clean: CleanMethod,
-    pub size_dir: Option<ConstStr<260>>
+    pub size_dir: Option<ConstStr<260>>,
 }
 
 fn get_exe_dir() -> ConstStr<260> {
     let mut path = ConstStr::<260>::new();
-    
+
     if let Ok(exe_path) = env::current_exe() {
         if let Some(parent) = exe_path.parent() {
             if let Some(parent_str) = parent.to_str() {
@@ -34,11 +39,11 @@ fn get_exe_dir() -> ConstStr<260> {
             }
         }
     }
-    
+
     if path.len == 0 {
         path.push_str(".");
     }
-    
+
     path
 }
 
@@ -53,7 +58,7 @@ pub fn load_rules(out_rules: &mut [CacheRule; MAX_RULES]) -> usize {
     rules_path.push("rules.txt");
 
     let rules_str = ConstStr::from(rules_path.to_str().unwrap_or("rules.txt"));
-    
+
     let file_content = match read_rules_file(&rules_str) {
         Ok(content) => content,
         Err(_) => {
@@ -79,10 +84,14 @@ pub fn load_rules(out_rules: &mut [CacheRule; MAX_RULES]) -> usize {
             templates_path.push(os_str);
             templates_path.push("rules.txt");
 
-            match read_rules_file(&ConstStr::from(templates_path.to_str().unwrap_or("rules.txt"))) {
+            match read_rules_file(&ConstStr::from(
+                templates_path.to_str().unwrap_or("rules.txt"),
+            )) {
                 Ok(content) => content,
                 Err(_) => {
-                    print_styled("<red>Error: <gray>Could not read rules.txt from templates/" + os_str + "/");
+                    print_styled(
+                        "<red>Error: <gray>Could not read rules.txt from templates/" + os_str + "/",
+                    );
                     std::process::exit(1);
                 }
             }
@@ -98,7 +107,9 @@ pub fn load_rules(out_rules: &mut [CacheRule; MAX_RULES]) -> usize {
     let mut lines = content.lines().filter(|l| !l.trim().is_empty());
 
     while let Some(name) = lines.next() {
-        if count >= MAX_RULES { break; }
+        if count >= MAX_RULES {
+            break;
+        }
 
         let det_line = lines.next().unwrap_or("");
         let detect = match det_line.as_bytes().get(0) {
@@ -114,21 +125,25 @@ pub fn load_rules(out_rules: &mut [CacheRule; MAX_RULES]) -> usize {
                 if let Some(idx) = cmd_part.find(';') {
                     CleanMethod::RunCommand(
                         ConstStr::from(&cmd_part[..idx]),
-                        ConstStr::from(&cmd_part[idx+1..]),
+                        ConstStr::from(&cmd_part[idx + 1..]),
                     )
                 } else {
-                    CleanMethod::RunCommand(
-                        ConstStr::from(cmd_part),
-                        ConstStr::new()
-                    )
+                    CleanMethod::RunCommand(ConstStr::from(cmd_part), ConstStr::new())
                 }
-            },
+            }
             _ => CleanMethod::CleanPath(ConstStr::from(&clean_line[1..])),
         };
 
-        let size_dir = lines.next().map(|s| {
-            if s.is_empty() { None } else { Some(ConstStr::from(s)) }
-        }).flatten();
+        let size_dir = lines
+            .next()
+            .map(|s| {
+                if s.is_empty() {
+                    None
+                } else {
+                    Some(ConstStr::from(s))
+                }
+            })
+            .flatten();
 
         out_rules[count] = CacheRule {
             name: ConstStr::from(name),
@@ -149,9 +164,7 @@ pub fn path_exists(path: &str) -> bool {
 pub fn is_rule_active(rule: &CacheRule) -> bool {
     match &rule.detect {
         DetectMethod::Binary(name) => find_executable(name.as_str()).is_some(),
-        DetectMethod::EnvVar(key) => {
-            env::var(key.as_str()).is_ok()
-        },
+        DetectMethod::EnvVar(key) => env::var(key.as_str()).is_ok(),
         DetectMethod::PathExists(path) => {
             let expanded = expand_path(*path);
             path_exists(expanded.as_str())
