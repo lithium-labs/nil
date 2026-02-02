@@ -9,6 +9,15 @@ repository = "https://github.com/lithium-labs/nil"
 license = "GPL-3.0-only"
 keywords = ["cache", "cleaner", "tool", "nil"]
 
+include = [
+    "src/**/*",
+    "Cargo.toml",
+    "README.md",
+    "COPYING",
+    "templates/**/*",
+    ".cargo/config.toml"
+]
+
 [profile.release]
 lto = "fat"
 codegen-units = 1

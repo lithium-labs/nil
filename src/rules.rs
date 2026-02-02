@@ -1,7 +1,7 @@
 use std::fs;
 use std::path::PathBuf;
 use std::env;
-use crate::{config::MAX_RULES, files::{expand_path, find_executable}, minimessage_const::ConstStr};
+use crate::{config::MAX_RULES, files::{expand_path, find_executable}, minimessage_const::ConstStr, ui::print_styled};
 
 #[derive(Clone, PartialEq, Eq, Hash)]
 pub enum DetectMethod {
@@ -56,7 +56,37 @@ pub fn load_rules(out_rules: &mut [CacheRule; MAX_RULES]) -> usize {
     
     let file_content = match read_rules_file(&rules_str) {
         Ok(content) => content,
-        Err(_) => return 0,
+        Err(_) => {
+            // Try templates folder
+            let os_str = match std::env::consts::OS {
+                "linux" => "linux",
+                "macos" => "macos",
+                "windows" => "windows",
+                _ => {
+                    print_styled("<red>Error: <gray>Unsupported OS.");
+                    std::process::exit(1);
+                }
+            };
+
+            let mut templates_path = PathBuf::from(exe_dir.as_str());
+            templates_path.push("templates");
+
+            if !templates_path.exists() {
+                print_styled("<red>Error: <gray>templates folder not found.");
+                std::process::exit(1);
+            }
+
+            templates_path.push(os_str);
+            templates_path.push("rules.txt");
+
+            match read_rules_file(&ConstStr::from(templates_path.to_str().unwrap_or("rules.txt"))) {
+                Ok(content) => content,
+                Err(_) => {
+                    print_styled("<red>Error: <gray>Could not read rules.txt from templates/" + os_str + "/");
+                    std::process::exit(1);
+                }
+            }
+        }
     };
 
     let content = match std::str::from_utf8(&file_content) {
