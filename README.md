@@ -6,4 +6,4 @@ Nil is a blazingly fast and small cache cleaner made in Rust.
 
 # How to Use
 Nil requires a config file called `rules.txt` or a `templates/` folder (structure: [templates](templates/)) in the same directory as the executable to function.<br>
-The format is defined in the [FORMAT.md](FORMAT.md) file.
+The format is defined in the [FORMAT.md](FORMAT.md) file. A premamde `rules.txt` is provided within your release, made for your os.
